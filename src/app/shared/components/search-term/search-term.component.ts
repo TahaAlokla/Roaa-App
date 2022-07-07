@@ -15,7 +15,6 @@ import {
 import {
   AbstractControl,
   ControlValueAccessor,
-
   NgControl,
   ValidationErrors,
   ValidatorFn,
@@ -43,6 +42,9 @@ function containsIdValidation(control: AbstractControl): ValidationErrors | null
 })
 export class SearchTermComponent implements OnInit {
   // 
+  selectedOption(){
+    
+  }
   @Input() value!: string;
   click$!: Observable<string>;
   // 
