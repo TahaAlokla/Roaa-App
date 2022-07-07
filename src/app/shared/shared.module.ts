@@ -2,31 +2,37 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import { SearchTermComponent } from './components/search-term/search-term.component';
-import {MatFormFieldModule} from '@angular/material/form-field';
 import { ReactiveFormsModule } from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
-import { MatOptionModule } from '@angular/material/core';
-import {MatIconModule} from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { ReuseSearchComponent } from './components/reuse-search/reuse-search.component';
+import { HttpClientModule } from '@angular/common/http';
+import { CustomSearchComponent } from './components/reuse-search/custom-search/custom-search.component';
+
+
 const material=[
   MatAutocompleteModule,
-  MatFormFieldModule,
   MatInputModule,
-  MatFormFieldModule,
-  MatOptionModule,
   MatIconModule,
+  MatButtonModule
 ]
 
 @NgModule({
   declarations: [
-    SearchTermComponent
+    SearchTermComponent,
+    ReuseSearchComponent,
+    CustomSearchComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    HttpClientModule,
     ...material
   ],
   exports:[
-    SearchTermComponent
+    SearchTermComponent,
+    ReuseSearchComponent
   ]
 })
 export class SharedModule { }
