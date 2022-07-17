@@ -1,3 +1,4 @@
+import { SearchTermService } from './shared/services/search-term.service';
 import { Component } from '@angular/core';
 import { Observable, of } from 'rxjs';
 const API_KEY = "e8067b53"
@@ -11,12 +12,12 @@ export class AppComponent {
     console.log(event);
 
   }
+
+  constructor(private SearchTermService: SearchTermService){}
   // Observable<any[]
   get callAPI(){
     //
-    return (term: string) =>this.http.get('http://www.omdbapi.com/?apikey=' + API_KEY + '&s=' + term);
-
-
+    return (term: string) =>this.SearchTermService.searchTermApi(term)
   }
 
 }
