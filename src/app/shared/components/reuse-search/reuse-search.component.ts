@@ -1,21 +1,39 @@
-import { Component, EventEmitter, Input, OnInit, Output, Type } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  Type,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
-import { debounceTime, tap, switchMap, finalize, distinctUntilChanged, filter } from 'rxjs/operators';
-import {  MatAutocompleteSelectedEvent, _MatAutocompleteBase } from '@angular/material/autocomplete';
+import {
+  debounceTime,
+  tap,
+  switchMap,
+  finalize,
+  distinctUntilChanged,
+  filter,
+} from 'rxjs/operators';
+import {
+  MatAutocompleteSelectedEvent,
+  _MatAutocompleteBase,
+} from '@angular/material/autocomplete';
+import { Observable, of } from 'rxjs';
 
-const API_KEY = "e8067b53"
+const API_KEY = 'e8067b53';
 
 @Component({
   selector: 'app-reuse-search',
   templateUrl: './reuse-search.component.html',
-  styleUrls: ['./reuse-search.component.scss']
+  styleUrls: ['./reuse-search.component.scss'],
 })
-
 export class ReuseSearchComponent implements OnInit {
-
-searchMoviesCtrl = new FormControl();
+  searchMoviesCtrl = new FormControl();
+  //
+  @Input() autoCompleteFn: ((term: string) => Observable<any[]>) | null = null;
   @Input()
   // id , name : interface
   filteredMovies!: any | any[];
@@ -24,21 +42,18 @@ searchMoviesCtrl = new FormControl();
   errorMsg!: string;
   minLengthTerm = 3;
   @Output()
-  selectedMovie=new EventEmitter<string>();
+  selectedMovie = new EventEmitter<string>();
   // selectedMovie: any = "";
-// create service from api
-  constructor(
-    private http: HttpClient
-  ) { }
+  // create service from api
+  constructor(private http: HttpClient) {}
 
-  onSelected(event:MatAutocompleteSelectedEvent) {
+  onSelected(event: MatAutocompleteSelectedEvent) {
     // imdbID
     console.log(event.option.value);
     // console.log(event.source);
     console.log(this.selectedMovie);
-    this.selectedMovie.emit(event.option.value)
+    this.selectedMovie.emit(event.option.value);
     // id : emit event
-
   }
 
   displayWith(value: any) {
@@ -48,14 +63,14 @@ searchMoviesCtrl = new FormControl();
   clearSelection() {
     // clear filter and input filed and emit value [ clear new value]
     // this.selectedMovie=[];
-    this.filteredMovies=[];
+    this.filteredMovies = [];
   }
 
   ngOnInit() {
     this.searchMoviesCtrl.valueChanges
       .pipe(
-        filter(res => {
-          return res !== null && res.length >= this.minLengthTerm
+        filter((res) => {
+          return res !== null && res.length >= this.minLengthTerm;
         }),
         distinctUntilChanged(),
         debounceTime(1000),
@@ -65,24 +80,30 @@ searchMoviesCtrl = new FormControl();
         //   this.isLoading = true;
         // }),
         // catch error add
-        switchMap(value => this.http.get('http://www.omdbapi.com/?apikey=' + API_KEY + '&s=' + value)
-          .pipe(
-            finalize(() => {
-              this.isLoading = false
-            }),
-          )
-        )
+        switchMap((value) => {
+          if (this.autoCompleteFn) {
+            return this.autoCompleteFn(value) || of([]);
+          } else {
+            return of([]);
+          }
+
+          // .pipe(
+          //   finalize(() => {
+          //     this.isLoading = false
+          //   }),
+          // )
+        })
+        // handling error null
       )
-      .subscribe((data:any) => {
+      .subscribe((data: any) => {
         if (data['Search'] == undefined) {
           this.errorMsg = data['Error'];
           // this.filteredMovies;
         } else {
-          this.errorMsg = "";
+          this.errorMsg = '';
           this.filteredMovies = data['Search'];
         }
         console.log(this.filteredMovies);
       });
   }
-
 }
