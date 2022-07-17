@@ -1,7 +1,7 @@
 <div class="wrapper">
   <mat-form-field class="example-full-width">
-    <input matInput placeholder="Search Movie" [matAutocomplete]="auto"
-      [formControl]="searchMoviesCtrl" placeholder="Min 3 Characters Ex. Ant">
+    <input matInput minimum="Search Movie" [matAutocomplete]="auto"
+      [formControl]="searchMoviesCtrl" placeholder="search term 3 char minimium">
     <button *ngIf="selectedMovie" matSuffix mat-icon-button aria-label="Clear" (click)="clearSelection()">
       <mat-icon>close</mat-icon>
     </button>
@@ -10,7 +10,7 @@
       <mat-option *ngIf="isLoading" class="is-loading">Loading...</mat-option>
       <ng-container *ngIf="!isLoading">
         <!-- result id move only -->
-        <mat-option *ngFor="let movie of filteredMovies" [value]="movie.imdbID">
+        <mat-option *ngFor="let movie of filteredMovies" [value]="movie">
           <span><b>{{movie.Title}}</b></span>
         </mat-option>
       </ng-container>
@@ -19,19 +19,9 @@
 
   <br>
 
-  <ng-container *ngIf="errorMsg; else elseTemplate">
+  <ng-container *ngIf="errorMsg">
     {{errorMsg}}
   </ng-container>
-  <ng-template #elseTemplate>
-    <!-- <div class="movie-details" *ngIf="selectedMovie?.Title">
-      <div>
-        <img [src]="selectedMovie?.Poster" style="height: 250px;" />
-      </div>
-      <div>
-        <h3>Selected Value: {{selectedMovie?.Title}}</h3>
 
-      </div>
-    </div> -->
-  </ng-template>
 
 </div>

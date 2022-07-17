@@ -16,14 +16,13 @@ import {
   finalize,
   distinctUntilChanged,
   filter,
+  catchError,
 } from 'rxjs/operators';
 import {
   MatAutocompleteSelectedEvent,
   _MatAutocompleteBase,
 } from '@angular/material/autocomplete';
-import { Observable, of } from 'rxjs';
-
-const API_KEY = 'e8067b53';
+import { empty, Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-reuse-search',
@@ -43,67 +42,89 @@ export class ReuseSearchComponent implements OnInit {
   minLengthTerm = 3;
   @Output()
   selectedMovie = new EventEmitter<string>();
-  // selectedMovie: any = "";
-  // create service from api
-  constructor(private http: HttpClient) {}
+
+  constructor() { }
 
   onSelected(event: MatAutocompleteSelectedEvent) {
     // imdbID
-    console.log(event.option.value);
+    console.log(event.option.value.imdbID);
     // console.log(event.source);
     console.log(this.selectedMovie);
-    this.selectedMovie.emit(event.option.value);
+    // this.searchMoviesCtrl.setValue('')
+    this.selectedMovie.emit(event.option.value.imdbID);
     // id : emit event
   }
 
   displayWith(value: any) {
+    console.log(value?.Title);
     return value?.Title;
   }
 
   clearSelection() {
     // clear filter and input filed and emit value [ clear new value]
     // this.selectedMovie=[];
+    this.searchMoviesCtrl.setValue('');
     this.filteredMovies = [];
   }
 
   ngOnInit() {
     this.searchMoviesCtrl.valueChanges
       .pipe(
-        filter((res) => {
-          return res !== null && res.length >= this.minLengthTerm;
-        }),
         distinctUntilChanged(),
         debounceTime(1000),
-        // tap(() => {
-        //   this.errorMsg = "";
-        //   // this.filteredMovies ;
-        //   this.isLoading = true;
-        // }),
-        // catch error add
+        filter((res) => {
+          if ( res.length <= this.minLengthTerm) {
+            // * Not Working
+          console.log("test inside use case less 3 char after search");
+            this.filteredMovies = [];
+          }
+          return res !== '' || res.length >= this.minLengthTerm;
+        }),
+
         switchMap((value) => {
           if (this.autoCompleteFn) {
             return this.autoCompleteFn(value) || of([]);
           } else {
             return of([]);
           }
+        })  ,tap( (data:any) =>{
+          // console.log(data);
+          // this.filteredMovies = data['Search'];
+          // console.log(this.filteredMovies);
+          // if (data['Error']) {
+          //   console.log("not found movies ");
+          //   // this.errorMsg = data['Error'];
+          //   this.errorMsg="not found movies"
+          // }
 
-          // .pipe(
-          //   finalize(() => {
-          //     this.isLoading = false
-          //   }),
-          // )
         })
         // handling error null
+        , catchError(error => {
+          console.log(error);
+          // Do something with error,
+          return empty()
+        }),
+
       )
-      .subscribe((data: any) => {
-        if (data['Search'] == undefined) {
-          this.errorMsg = data['Error'];
-          // this.filteredMovies;
-        } else {
-          this.errorMsg = '';
+      .subscribe({
+        next: (data: any) => {
+          console.log(data);
           this.filteredMovies = data['Search'];
-        }
-        console.log(this.filteredMovies);
+          console.log(this.filteredMovies);
+
+          if (data['Error']) {
+            console.log("not found movies ");
+            // this.errorMsg = data['Error'];
+            this.errorMsg="not found movies"
+          }else{
+            // this.errorMsg = '';
+            // this.filteredMovies = data['Search'];
+            // console.log(this.filteredMovies);
+          }
+        },
+        error: (err: any) => {
+          console.log(err);
+        },
       });
   }
 }

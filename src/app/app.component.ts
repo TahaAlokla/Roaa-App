@@ -10,7 +10,6 @@ const API_KEY = "e8067b53"
 export class AppComponent {
   serchMovies(event:string){
     console.log(event);
-
   }
 
   constructor(private SearchTermService: SearchTermService){}
